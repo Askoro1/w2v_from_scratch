@@ -1,5 +1,5 @@
 import numpy as np
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 from datasets import load_dataset
 
 
@@ -116,7 +116,7 @@ class Word2Vec:
             iters_performed = 0
             running_loss = 0.
 
-            with tqdm(total=iters_per_epoch, position=0, leave=True) as pbar:
+            with tqdm(total=iters_per_epoch, position=0, ncols=120) as pbar:
                 for text_i in range(len(self.corpus_tokenized)):
                     for j, center_word in enumerate(self.corpus_tokenized[text_i]):
                         center_word_idx = self.word_to_idx[center_word]
@@ -138,7 +138,7 @@ class Word2Vec:
                             if iters_performed % 10000 == 0:
                                 pbar.set_postfix({"loss (curr iter)": f"{loss:.4f}",
                                                   "loss (avg)": f"{(running_loss / (iters_performed + 1)):.3f}",
-                                                  "lr": curr_lr})
+                                                  "lr": f"{curr_lr:.4f}"})
 
                             if iters_performed % 1000000 == 0:
                                 if valid_sim is not None:
