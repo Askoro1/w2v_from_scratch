@@ -161,7 +161,7 @@ class Word2Vec:
                                     for (a, b, c) in valid_analogies:
                                         topk_d, _ = self.get_topk_analogies(a, b, c)
                                         topk_d = ', '.join([f'vec({topk_d_i})' for topk_d_i in topk_d])
-                                        pbar.write(f"\t vec({b}) - vec({a}) + vec({c}) is most similar to: | {topk_d}")
+                                        pbar.write(f"\t vec({b}) - vec({a}) + vec({c}) is most similar to: {topk_d}")
 
                             iters_performed += 1
                             pbar.update(1)
@@ -210,22 +210,17 @@ class Word2Vec:
         word_idx = self.word_to_idx[word]
         word_embed = self.W_input[word_idx]
 
-        indices = set((range(self.vocab_size)))
-        indices.remove(word_idx)
-        indices = list(indices)
-        indices.sort()
-
-        dotp = np.dot(self.W_input[indices], word_embed)
-        norm_prod = np.linalg.norm(self.W_input[indices], axis=1) * np.linalg.norm(word_embed)
+        dotp = np.dot(self.W_input, word_embed)
+        norm_prod = np.linalg.norm(self.W_input, axis=1) * np.linalg.norm(word_embed)
         similarities = dotp / norm_prod
 
-        topk_indices = np.argsort(similarities)[::-1][:topk]
+        topk_indices = np.argsort(similarities)[::-1][1:(topk+1)]
         topk_words = [self.idx_to_word[idx] for idx in topk_indices]
         topk_similarities = similarities[topk_indices]
 
         return topk_words, topk_similarities
 
-    def get_topk_analogies(self, a, b, c, topk=3):
+    def get_topk_analogies(self, a, b, c, topk=5):
         if a not in self.word_to_idx or b not in self.word_to_idx or c not in self.word_to_idx:
             return None
         a_idx = self.word_to_idx[a]
@@ -237,15 +232,8 @@ class Word2Vec:
 
         d_embed = b_embed - a_embed + c_embed
 
-        indices = set((range(self.vocab_size)))
-        indices.remove(a_idx)
-        indices.remove(b_idx)
-        indices.remove(c_idx)
-        indices = list(indices)
-        indices.sort()
-
-        dotp = np.dot(self.W_input[indices], d_embed)
-        norm_prod = np.linalg.norm(self.W_input[indices], axis=1) * np.linalg.norm(d_embed)
+        dotp = np.dot(self.W_input, d_embed)
+        norm_prod = np.linalg.norm(self.W_input, axis=1) * np.linalg.norm(d_embed)
         similarities = dotp / norm_prod
 
         topk_indices = np.argsort(similarities)[::-1][:topk]
