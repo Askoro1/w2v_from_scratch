@@ -171,7 +171,29 @@ class Word2Vec:
                             break
                     if iters_performed == iters_per_epoch:
                         break
-        print("Finished training")
+        print("\nFinished training")
+
+        if valid_sim is not None:
+            print()
+            print("-" * 80)
+            print()
+            print("Final Eval (Similarity Test):")
+            for a in valid_sim:
+                topk_s, topk_similarities = self.get_topk_similar(a)
+                topk_str = ', '.join(
+                    [f'vec({topk_s_i}) (sim: {topk_sim_i:.4f})' for (topk_s_i, topk_sim_i) in
+                     list(zip(topk_s, topk_similarities))])
+                print(f"\t vec({a}) is most similar to: {topk_str}")
+
+        if valid_analogies is not None:
+            print()
+            print("-" * 80)
+            print()
+            print("Final Eval (Analogy Test):")
+            for (a, b, c) in valid_analogies:
+                topk_d, _ = self.get_topk_analogies(a, b, c)
+                topk_d = ', '.join([f'vec({topk_d_i})' for topk_d_i in topk_d])
+                print(f"\t vec({b}) - vec({a}) + vec({c}) is most similar to: {topk_d}")
 
     def _get_negative_samples(self):
         return self.negative_samples_table[
